@@ -1,0 +1,37 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6d2959b7e7a4422459528bf06335f82a, type: 3}
+  m_Name: Beage
+  m_EditorClassIdentifier: Assembly-CSharp::XeomonBaseInformation
+  name: Beage
+  description: 
+  frontSprite: {fileID: 21300000, guid: 818cf159951cf9a4e8e810b2bbab4096, type: 3}
+  backSprite: {fileID: 21300000, guid: 18fc6e8e3f72b154fba88f358748be28, type: 3}
+  element1: 3
+  element2: 0
+  maxHP: 45
+  attack: 56
+  defense: 67
+  spAttack: 52
+  spDefense: 57
+  speed: 40
+  learnableMoves:
+  - baseInformation: {fileID: 11400000, guid: ee12c73f2f52a5d42bf17d903f730a9d, type: 2}
+    level: 0
+  - baseInformation: {fileID: 11400000, guid: 0e6a33421c345104eb0f295b24393dc8, type: 2}
+    level: 1
+  - baseInformation: {fileID: 11400000, guid: 556aaaa14145ae34cbe3147abc11fedf, type: 2}
+    level: 3
+  - baseInformation: {fileID: 11400000, guid: df92c9dc24b674e4ca9a5b19070f2cfb, type: 2}
+    level: 6
+  - baseInformation: {fileID: 11400000, guid: b4087e36d58694b4ca67dc59629835b3, type: 2}
+    level: 9
