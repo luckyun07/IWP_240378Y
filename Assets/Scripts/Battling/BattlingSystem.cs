@@ -396,6 +396,6 @@ public class BattlingSystem : MonoBehaviour
             shakeCount++;
         }
 
-        return 4;
+        return shakeCount;
     }
 }
