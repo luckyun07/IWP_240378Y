@@ -352,7 +352,7 @@ public class BattlingSystem : MonoBehaviour
 
         var xorbballObj = Instantiate(xorbballSprite, playerXeomon.transform.position /*- new Vector3(0, 0.5f)*/, Quaternion.identity);
 
-        int shakeCount = TryToCatchXeomon(enemyXeomon.Xeomon);
+        int shakeCount = TryToCatchXeomon(enemyXeomon.Xeomon, 1, 1);
 
         if (shakeCount == 4)
         {
@@ -378,24 +378,27 @@ public class BattlingSystem : MonoBehaviour
          Destroy(xorbballObj);
     }
 
-    int TryToCatchXeomon(Xeomon xeomon)
+    int TryToCatchXeomon(Xeomon xeomon, float ballBonus, float statusBonus)
     {
-        float a = (3 * xeomon.MaxHP - 2 * xeomon.HP) * xeomon.BaseInformation.CatchRate /* *ConditionsDB.GetStatusBonus(xeomon.Status) */ / (3 * xeomon.BaseInformation.MaxHP);
+        float a = ((3 * xeomon.MaxHP - 2 * xeomon.HP) * xeomon.BaseInformation.CatchRate * ballBonus)/ (3 * xeomon.MaxHP);
+        a *=  statusBonus;
 
         if (a >= 255)
             return 4;
 
-        float b = 1048560 / Mathf.Sqrt(Mathf.Sqrt(16711680 / a));
+        float b = 65536f * Mathf.Pow(a / 255f, 0.25f);
+        Debug.Log($"a: {a} b: {b}");
 
         int shakeCount = 0;
         while (shakeCount < 4) {
 
-            if (UnityEngine.Random.Range(0, 65536) >= b)
+            if (UnityEngine.Random.Range(0f, 65536f) >= b)
                 break;
 
             shakeCount++;
         }
 
+        Debug.Log($"shakeCount: {shakeCount}");
         return shakeCount;
     }
 }
