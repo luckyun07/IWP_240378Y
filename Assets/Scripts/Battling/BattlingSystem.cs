@@ -130,7 +130,8 @@ public class BattlingSystem : MonoBehaviour
             ActionSelection();
     }
 
-    IEnumerator RunMove(BattlingXeomon sourceXeomon, BattlingXeomon targetXeomon, Move move) {
+    IEnumerator RunMove(BattlingXeomon sourceXeomon, BattlingXeomon targetXeomon, Move move)
+    {
 
         move.PP--;
         yield return dialogueBox.TypeDialogue(sourceXeomon.Xeomon.BaseInformation.Name + " used " + move.BaseInformation.Name);
@@ -146,7 +147,8 @@ public class BattlingSystem : MonoBehaviour
                     targetXeomon.Xeomon.ApplyBoosts(effects.Boosts);
             }
         }
-        else {
+        else
+        {
             var damageDetails = targetXeomon.Xeomon.TakeDamage(move, sourceXeomon.Xeomon);
             yield return targetXeomon.Hud.UpdateHP();
             yield return ShowDamageDetails(damageDetails);
@@ -154,10 +156,7 @@ public class BattlingSystem : MonoBehaviour
 
         if (targetXeomon.Xeomon.HP <= 0)
         {
-            yield return dialogueBox.TypeDialogue(targetXeomon.Xeomon.BaseInformation.Name + " fainted!");
-
-            yield return new WaitForSeconds(2f);
-            CheckForBattleOver(targetXeomon);
+            yield return HandleXeomonFainted(targetXeomon);
         }
     }
 
@@ -170,11 +169,59 @@ public class BattlingSystem : MonoBehaviour
 
         if (targetXeomon.Xeomon.HP <= 0)
         {
-            yield return dialogueBox.TypeDialogue(targetXeomon.Xeomon.BaseInformation.Name + " fainted!");
-
-            yield return new WaitForSeconds(2f);
-            CheckForBattleOver(targetXeomon);
+            yield return HandleXeomonFainted(targetXeomon);
         }
+    }
+
+    IEnumerator HandleXeomonFainted(BattlingXeomon faintedXeomon)
+    {
+        yield return dialogueBox.TypeDialogue(faintedXeomon.Xeomon.BaseInformation.Name + " fainted!");
+        yield return new WaitForSeconds(2f);
+
+        if (!faintedXeomon.IsPlayerXeomon)
+        {
+            // Gaining EXP
+            int Exp = faintedXeomon.Xeomon.BaseInformation.ExpYield;
+            int enemyLevel = faintedXeomon.Xeomon.Level;
+
+            int Expgain = Mathf.FloorToInt((Exp * enemyLevel) / 7f);
+            playerXeomon.Xeomon.Exp += Expgain;
+            yield return dialogueBox.TypeDialogue(playerXeomon.Xeomon.BaseInformation.Name + " gained " + Expgain + " XP!");
+            yield return playerXeomon.Hud.SetExpSmooth();
+
+            // Check for level up
+
+            while (playerXeomon.Xeomon.CheckForLevelUp())
+            {
+                playerXeomon.Hud.SetLevel();
+                yield return dialogueBox.TypeDialogue(playerXeomon.Xeomon.BaseInformation.Name + " leveled up to level " + playerXeomon.Xeomon.Level + "!");
+
+                // Try to learn new moves
+                var newMove = playerXeomon.Xeomon.GetLearnableMoveAtCurrentLevel();
+
+                if(newMove != null)
+                {
+                    if (playerXeomon.Xeomon.Moves.Count < XeomonBaseInformation.MaxNumOfMoves)
+                    {
+                        Debug.Log("Learned new move " + newMove.BaseInformation.Name);
+                        playerXeomon.Xeomon.LearnMove(newMove);
+                        yield return dialogueBox.TypeDialogue(playerXeomon.Xeomon.BaseInformation.Name + " learned " + newMove.BaseInformation.Name + "!");
+                        dialogueBox.SetMoveNames(playerXeomon.Xeomon.Moves);
+                    }
+                    else
+                    {
+
+                    }
+                }
+
+                yield return playerXeomon.Hud.SetExpSmooth(true);
+            }
+
+            yield return new WaitForSeconds(1f);
+
+        }
+
+        CheckForBattleOver(faintedXeomon);
     }
 
     void CheckForBattleOver(BattlingXeomon faintedXeomon) {

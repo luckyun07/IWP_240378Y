@@ -24,9 +24,32 @@ public class XeomonBaseInformation : ScriptableObject
     [SerializeField] int spDefense;
     [SerializeField] int speed;
 
+    [SerializeField] int expYield;
+    [SerializeField] GrowthRate growthRate;
+
     [SerializeField] int catchRate = 255;
 
     [SerializeField] List<LearnableMove> learnableMoves;
+
+    public static int MaxNumOfMoves { get; set; } = 4;
+
+    public int GetExpForLevel(int level)
+    {
+        switch (growthRate)
+        {
+            case GrowthRate.Fast:
+                return 4 * (level * level * level) / 5;
+            case GrowthRate.MediumFast:
+                return level * level * level;
+            case GrowthRate.MediumSlow:
+                return (int)(1.2f * (level * level * level) - 15 * (level * level) + 100 * level - 140);
+            case GrowthRate.Slow:
+                return 5 * (level * level * level) / 4;
+            default:
+                return level * level * level;
+        }
+    }
+
     public string Name
     {
         get { return name; }
@@ -93,6 +116,10 @@ public class XeomonBaseInformation : ScriptableObject
     }
 
     public int CatchRate => catchRate;
+
+    public int ExpYield => expYield;
+
+    public GrowthRate GrowthRate => growthRate;
 }
 
 [System.Serializable]
@@ -133,6 +160,14 @@ public enum XeomonElement
     Dark,
     Steel,
     Fairy
+}
+
+public enum GrowthRate
+{
+    Fast,
+    MediumFast,
+    MediumSlow,
+    Slow
 }
 
 public enum Stat

@@ -1,10 +1,12 @@
-using System;
+    using System;
 using System.Collections;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
 public class PlayerController : MonoBehaviour
 {
+    const float offsetY = 0.3f;
+
     public float moveSpeed;
     public LayerMask solidObjectLayer;
     public LayerMask grassLayer;
@@ -80,7 +82,7 @@ public class PlayerController : MonoBehaviour
 
     private void CheckForEncounters()
     {
-        if (Physics2D.OverlapCircle(transform.position, 0.2f, grassLayer) != null)
+        if (Physics2D.OverlapCircle(transform.position - new Vector3(0, offsetY), 0.2f, grassLayer) != null)
         {
             if (UnityEngine.Random.Range(1, 101) <= 10)
             {

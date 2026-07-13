@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 [System.Serializable]
@@ -27,8 +28,8 @@ public class Xeomon
         }
     }
 
+    public int Exp { get; set; }
     public int HP { get; set; }
-
     public List<Move> Moves { get; set; }
     public Dictionary<Stat, int> Stats { get; private set; }
     public Dictionary<Stat, int> StatBoosts { get; private set; }
@@ -49,9 +50,11 @@ public class Xeomon
         {
             if (move.Level <= Level)
                 Moves.Add(new Move(move.BaseInformation));
-            if (Moves.Count >= 4)
+            if (Moves.Count >= XeomonBaseInformation.MaxNumOfMoves)
                 break;
         }
+
+        Exp = BaseInformation.GetExpForLevel(Level);
 
         CalculateStats();
         HP = MaxHP;
@@ -108,6 +111,30 @@ public class Xeomon
 
             Debug.Log($"Boosted {stat} by {boost}.");
         }
+    }
+
+    public bool CheckForLevelUp()
+    {
+        if (Exp > _base.GetExpForLevel(Level + 1))
+        {
+            _level++;
+            return true;
+        }
+
+        return false;
+    }
+
+    public LearnableMove GetLearnableMoveAtCurrentLevel()
+    {
+        return BaseInformation.LearnableMoves.Where(x => x.Level == _level).FirstOrDefault();
+    }
+
+    public void LearnMove(LearnableMove moveToLearn)
+    {
+        if (Moves.Count > XeomonBaseInformation.MaxNumOfMoves)
+            return;
+
+        Moves.Add(new Move(moveToLearn.BaseInformation));
     }
 
     public int MaxHP
