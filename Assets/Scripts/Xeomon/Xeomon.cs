@@ -199,10 +199,21 @@ public class Xeomon
             Fainted = false
         };
 
-        float attack = attacker.Attack;
-        float defense = Defense;
+        float attack;
+        float defense;
 
-        
+        if (attacker.Attack >= attacker.SpAttack)
+        {
+            attack = attacker.Attack;
+            defense = Defense;
+        }
+        else
+        {
+            attack = attacker.SpAttack;
+            defense = SpDefense;
+        }
+
+
         float modifiers = Random.Range(0.85f, 1f) * element * critical;
         float a = (2 * attacker.Level + 10) / 250f;
         float d = a * dmg * ((float)attack / defense) + 2;
