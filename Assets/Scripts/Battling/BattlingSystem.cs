@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using UnityEngine;
+using UnityEngine.UI;
 using UnityEngine.InputSystem;
 
 public enum BattleState { Start, ActionSelection, MoveSelection, AbilityAttack, PerformMove, Busy, PartyScreen, BattleOver, RunningTurn }
@@ -12,6 +13,8 @@ public class BattlingSystem : MonoBehaviour
     [SerializeField] BattlingDialogueBox dialogueBox;
     [SerializeField] PartyScreen partyScreen;
     [SerializeField] GameObject xorbballSprite;
+    [SerializeField] Sprite[] weaponSprite;
+    [SerializeField] Image weapon;
 
     public event Action<bool> OnBattleOver;
 
@@ -27,7 +30,8 @@ public class BattlingSystem : MonoBehaviour
     {
         this.playerParty = playerParty;
         this.wildXeomon = wildXeomon;
-        
+
+
         StartCoroutine(SetUpBattle());
     }
 
@@ -39,6 +43,19 @@ public class BattlingSystem : MonoBehaviour
         partyScreen.Init();
 
         dialogueBox.SetMoveNames(playerXeomon.Xeomon.Moves);
+
+        if (playerXeomon.Xeomon.BaseInformation.Element1 == XeomonElement.Fire)
+        {
+            weapon.sprite = weaponSprite[0];
+        }
+        else if (playerXeomon.Xeomon.BaseInformation.Element1 == XeomonElement.Water)
+        {
+            weapon.sprite = weaponSprite[1];
+        }
+        else if (playerXeomon.Xeomon.BaseInformation.Element1 == XeomonElement.Grass)
+        {
+            weapon.sprite = weaponSprite[2];
+        }
 
         yield return dialogueBox.TypeDialogue("A wild " + enemyXeomon.Xeomon.BaseInformation.Name + " appeared!");
 
@@ -339,6 +356,19 @@ public class BattlingSystem : MonoBehaviour
         playerXeomon.Setup(newXeomon);
         dialogueBox.SetMoveNames(newXeomon.Moves);
         yield return dialogueBox.TypeDialogue("Go, " + newXeomon.BaseInformation.Name + "!");
+
+        if (playerXeomon.Xeomon.BaseInformation.Element1 == XeomonElement.Fire)
+        {
+            weapon.sprite = weaponSprite[0];
+        }
+        else if (playerXeomon.Xeomon.BaseInformation.Element1 == XeomonElement.Water)
+        {
+            weapon.sprite = weaponSprite[1];
+        }
+        else if (playerXeomon.Xeomon.BaseInformation.Element1 == XeomonElement.Grass)
+        {
+            weapon.sprite = weaponSprite[2];
+        }
 
         StartCoroutine(EnemyMove());
     }
