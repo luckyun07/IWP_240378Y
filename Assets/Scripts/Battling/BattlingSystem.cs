@@ -3,8 +3,10 @@ using System.Collections;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.InputSystem;
+using UnityEngine.EventSystems;
+using System.Linq;
 
-public enum BattleState { Start, ActionSelection, MoveSelection, AbilityAttack, PerformMove, Busy, PartyScreen, BattleOver, RunningTurn }
+public enum BattleState { Start, ActionSelection, MoveSelection, AbilityAttack, PerformMove, Busy, PartyScreen, MoveToForget, BattleOver, RunningTurn }
 
 public class BattlingSystem : MonoBehaviour
 {
@@ -15,6 +17,7 @@ public class BattlingSystem : MonoBehaviour
     [SerializeField] GameObject xorbballSprite;
     [SerializeField] Sprite[] weaponSprite;
     [SerializeField] Image weapon;
+    [SerializeField] MoveSelectionUI moveSelectionUI;
 
     public event Action<bool> OnBattleOver;
 
@@ -25,6 +28,8 @@ public class BattlingSystem : MonoBehaviour
 
     XeomonParty playerParty;
     Xeomon wildXeomon;
+
+    MoveBaseInformation moveToLearn;
 
     public void StartBattle(XeomonParty playerParty, Xeomon wildXeomon)
     {
@@ -210,7 +215,10 @@ public class BattlingSystem : MonoBehaviour
                     }
                     else
                     {
-
+                        yield return dialogueBox.TypeDialogue(playerXeomon.Xeomon.BaseInformation.Name + " wants to learn " + newMove.BaseInformation.Name + ", but it can't learn more than " + XeomonBaseInformation.MaxNumOfMoves + " moves.");
+                        yield return ChooseMoveToForget(playerXeomon.Xeomon, newMove.BaseInformation);
+                        yield return new WaitUntil(() => state != BattleState.MoveToForget);
+                        yield return new WaitForSeconds(2f);
                     }
                 }
 
@@ -235,6 +243,17 @@ public class BattlingSystem : MonoBehaviour
         }
         else
             BattleOver(true);
+    }
+
+    IEnumerator ChooseMoveToForget(Xeomon xeomon, MoveBaseInformation newMove)
+    {
+        state = BattleState.Busy;
+        yield return dialogueBox.TypeDialogue("Choose move to forget");
+        moveSelectionUI.gameObject.SetActive(true);
+        moveSelectionUI.SetMoveData(xeomon.Moves.Select(x => x.BaseInformation).ToList(), newMove);
+        moveToLearn = newMove;
+
+        state = BattleState.MoveToForget;
     }
 
     //IEnumerator RunTurns()
@@ -262,6 +281,29 @@ public class BattlingSystem : MonoBehaviour
             HandlePartySelection();
         else if (state == BattleState.AbilityAttack)
             HandleAbilityAttack();
+        else if (state == BattleState.MoveToForget)
+        {
+            Action<int> onMoveSelected = (moveIndex) =>
+            {
+                moveSelectionUI.gameObject.SetActive(false);
+                if (moveIndex == XeomonBaseInformation.MaxNumOfMoves)
+                {
+                    StartCoroutine(dialogueBox.TypeDialogue($"{playerXeomon.Xeomon.BaseInformation.name} did not learn {moveToLearn.name}"));
+                }
+                else
+                {
+                    var selectedMove = playerXeomon.Xeomon.Moves[moveIndex].BaseInformation;
+                    StartCoroutine(dialogueBox.TypeDialogue($"{playerXeomon.Xeomon.BaseInformation.name} forgot {selectedMove.name} and learned {moveToLearn.name}"));
+
+                    playerXeomon.Xeomon.Moves[moveIndex] = new Move(moveToLearn);
+                }
+
+                moveToLearn = null;
+                state = BattleState.RunningTurn;
+            };
+
+            moveSelectionUI.HandleMoveSelection(onMoveSelected);
+        }
     }
 
     void HandleAbilityAttack()
