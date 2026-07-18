@@ -24,7 +24,10 @@ public class BattlingSystem : MonoBehaviour
     BattleState state;
     int currentAction;
     int currentMove;
+    int currentAttack;
     int currentMember;
+
+    bool usedLimitRelease = false;
 
     XeomonParty playerParty;
     Xeomon wildXeomon;
@@ -36,7 +39,7 @@ public class BattlingSystem : MonoBehaviour
         this.playerParty = playerParty;
         this.wildXeomon = wildXeomon;
 
-
+        usedLimitRelease = false;
         StartCoroutine(SetUpBattle());
     }
 
@@ -100,6 +103,7 @@ public class BattlingSystem : MonoBehaviour
         state = BattleState.AbilityAttack;
         dialogueBox.EnableActionSelector(false);
         dialogueBox.EnableDialoguetext(false);
+        dialogueBox.EnableAttackSelector(true);
     }
 
     IEnumerator PlayerMove()
@@ -112,11 +116,10 @@ public class BattlingSystem : MonoBehaviour
         if(state == BattleState.PerformMove)
             StartCoroutine(EnemyMove());
     }
-    IEnumerator PlayerAttack()
+    IEnumerator PlayerAttack(int num)
     {
         state = BattleState.PerformMove;
-        var move = playerXeomon.Xeomon.Moves[currentMove];
-        yield return RunAbility(playerXeomon, enemyXeomon);
+        yield return RunAbility(playerXeomon, enemyXeomon, num);
 
         // If the battle stat was not changed by RunMove, then go to next step
         if (state == BattleState.PerformMove)
@@ -163,12 +166,31 @@ public class BattlingSystem : MonoBehaviour
         {
             yield return HandleXeomonFainted(targetXeomon);
         }
+        usedLimitRelease = false;
     }
 
-    IEnumerator RunAbility(BattlingXeomon sourceXeomon, BattlingXeomon targetXeomon)
+    IEnumerator RunAbility(BattlingXeomon sourceXeomon, BattlingXeomon targetXeomon, int num)
     {
-        yield return dialogueBox.TypeDialogue("You used a " + sourceXeomon.Xeomon.BaseInformation.Element1 + " attack");
-        var damageDetails = targetXeomon.Xeomon.TakeAbilityDamage(5f * sourceXeomon.Xeomon.Level, sourceXeomon.Xeomon);
+        if (num == 0)
+            yield return dialogueBox.TypeDialogue("You used a " + sourceXeomon.Xeomon.BaseInformation.Element1 + " slash!");
+        else if (num == 1)
+            yield return dialogueBox.TypeDialogue("You used a " + sourceXeomon.Xeomon.BaseInformation.Element1 + " blast!");
+        else if (num == 2)
+            yield return dialogueBox.TypeDialogue("You used a " + sourceXeomon.Xeomon.BaseInformation.Element1 + " enhanced slash!");
+        else if (num == 3)
+            yield return dialogueBox.TypeDialogue("You used a " + sourceXeomon.Xeomon.BaseInformation.Element1 + " enhanced blast!");
+        else if (num == 4) {
+            yield return dialogueBox.TypeDialogue("You used a " + sourceXeomon.Xeomon.BaseInformation.Element1 + " limit release!");
+            usedLimitRelease = true;
+        }
+
+        var damageDetails = targetXeomon.Xeomon.TakeAbilityDamage(5f * sourceXeomon.Xeomon.Level, sourceXeomon.Xeomon, num);
+
+        if (num == 2 || num == 3)
+        {
+            yield return sourceXeomon.Hud.UpdateHP();
+        }
+
         yield return targetXeomon.Hud.UpdateHP();
         yield return ShowDamageDetails(damageDetails);
 
@@ -280,7 +302,7 @@ public class BattlingSystem : MonoBehaviour
         else if (state == BattleState.PartyScreen)
             HandlePartySelection();
         else if (state == BattleState.AbilityAttack)
-            HandleAbilityAttack();
+            HandleAbilitySelection();
         else if (state == BattleState.MoveToForget)
         {
             Action<int> onMoveSelected = (moveIndex) =>
@@ -306,10 +328,36 @@ public class BattlingSystem : MonoBehaviour
         }
     }
 
-    void HandleAbilityAttack()
+    void HandleAbilitySelection()
     {
-       dialogueBox.EnableDialoguetext(true);
-       StartCoroutine(PlayerAttack());
+       var keyboard = Keyboard.current;
+       if (keyboard != null)
+       {
+           if (keyboard.rightArrowKey.wasPressedThisFrame)
+               currentAttack++;
+           else if (keyboard.leftArrowKey.wasPressedThisFrame)
+                currentAttack--;
+           else if (keyboard.downArrowKey.wasPressedThisFrame)
+                currentAttack += 3;
+           else if (keyboard.upArrowKey.wasPressedThisFrame)
+               currentAttack -= 3;
+
+           currentAttack = Mathf.Clamp(currentAttack, 0, 4);
+           dialogueBox.UpdateAttackSelection(currentAttack);
+
+           if (keyboard.enterKey.wasPressedThisFrame)
+           {
+               dialogueBox.EnableAttackSelector(false);
+               dialogueBox.EnableDialoguetext(true);
+               StartCoroutine(PlayerAttack(currentAttack));
+           }
+           else if (keyboard.escapeKey.wasPressedThisFrame)
+           {
+               dialogueBox.EnableAttackSelector(false);
+               dialogueBox.EnableDialoguetext(true);
+               ActionSelection();
+           }
+       }
     }
 
     void HandleActionSelection()
@@ -338,7 +386,13 @@ public class BattlingSystem : MonoBehaviour
                 }
                 else if (currentAction == 1)// Weapon
                 {
-                    AbilityAttack();
+                    if (usedLimitRelease)
+                    {
+                        dialogueBox.SetDialogue("Attack on cooldown.");
+                        return;
+                    }
+                    else
+                        AbilityAttack();
                 }
                 else if (currentAction == 2)// Xeomon
                 {
@@ -460,6 +514,7 @@ public class BattlingSystem : MonoBehaviour
         }
 
         StartCoroutine(EnemyMove());
+        usedLimitRelease = false;
     }
 
     IEnumerator ThrowXorbball()
@@ -494,7 +549,8 @@ public class BattlingSystem : MonoBehaviour
             state = BattleState.RunningTurn;
             StartCoroutine(EnemyMove());
         }
-         Destroy(xorbballObj);
+        Destroy(xorbballObj);
+        usedLimitRelease = false;
     }
 
     int TryToCatchXeomon(Xeomon xeomon, float ballBonus, float statusBonus)
@@ -506,7 +562,6 @@ public class BattlingSystem : MonoBehaviour
             return 4;
 
         float b = 65536f * Mathf.Pow(a / 255f, 0.25f);
-        Debug.Log($"a: {a} b: {b}");
 
         int shakeCount = 0;
         while (shakeCount < 4) {
@@ -517,7 +572,6 @@ public class BattlingSystem : MonoBehaviour
             shakeCount++;
         }
 
-        Debug.Log($"shakeCount: {shakeCount}");
         return shakeCount;
     }
 }

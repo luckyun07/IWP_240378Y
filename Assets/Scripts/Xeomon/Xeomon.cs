@@ -210,7 +210,7 @@ public class Xeomon
         return damageDetails;
     }
 
-    public DamageDetails TakeAbilityDamage(float dmg, Xeomon attacker)
+    public DamageDetails TakeAbilityDamage(float dmg, Xeomon attacker, int num)
     {
         float critical = 1f;
         if (Random.value * 100f <= 6.25f)
@@ -228,18 +228,34 @@ public class Xeomon
 
         float attack;
         float defense;
+        float enhance = 1f;
 
-        if (attacker.Attack >= attacker.SpAttack)
+        if (num == 2 || num == 3)
         {
-            attack = attacker.Attack;
+            enhance = 1.5f;
+            attacker.HP -= Mathf.FloorToInt(attacker.MaxHP * 0.1f);
+        }
+
+        if (num == 0 || num == 2)
+        {
+            attack = attacker.Attack * enhance;
             defense = Defense;
+        }
+        else if (num == 1 || num == 3)
+        {
+            attack = attacker.SpAttack * enhance;
+            defense = SpDefense;
+        }
+        else if (num == 4)
+        {
+            attack = ((attacker.SpAttack > attacker.Attack) ? attacker.SpAttack:attacker.Attack) * 2;
+            defense = (attacker.SpAttack > attacker.Attack) ? SpDefense:Defense;
         }
         else
         {
-            attack = attacker.SpAttack;
-            defense = SpDefense;
+            attack = (attacker.SpAttack > attacker.Attack) ? attacker.SpAttack : attacker.Attack;
+            defense = (attacker.SpAttack > attacker.Attack) ? SpDefense : Defense;
         }
-
 
         float modifiers = Random.Range(0.85f, 1f) * element * critical;
         float a = (2 * attacker.Level + 10) / 250f;

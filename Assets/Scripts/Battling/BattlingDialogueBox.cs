@@ -11,12 +11,16 @@ public class BattlingDialogueBox : MonoBehaviour
     [SerializeField] GameObject actionSelector;
     [SerializeField] GameObject moveSelector;
     [SerializeField] GameObject moveDetails;
+    [SerializeField] GameObject attackSelector;
+    [SerializeField] GameObject attackDetails;
 
     [SerializeField] List<Text> actionTexts;
     [SerializeField] List<Text> moveTexts;
+    [SerializeField] List<Text> attackTexts;
 
     [SerializeField] Text ppText;
     [SerializeField] Text elementText;
+    [SerializeField] Text attackInfoText;
 
     [SerializeField] Color highlightedColor;
     public void SetDialogue(string dialogue)
@@ -52,6 +56,12 @@ public class BattlingDialogueBox : MonoBehaviour
         moveDetails.SetActive(enabled);
     }
 
+    public void EnableAttackSelector(bool enabled)
+    {
+        attackDetails.SetActive(enabled);
+        attackSelector.SetActive(enabled);
+    }
+
     public void UpdateActionSelection(int selectedAction)
     {
         for(int i =0; i<actionTexts.Count; i++)
@@ -82,6 +92,32 @@ public class BattlingDialogueBox : MonoBehaviour
         }
         ppText.text = $"PP {move.PP}/{move.BaseInformation.PP}";
         elementText.text = move.BaseInformation.Element.ToString();
+    }
+
+    public void UpdateAttackSelection(int selectedMove)
+    {
+        for (int i = 0; i < attackTexts.Count; i++)
+        {
+            if (i == selectedMove)
+            {
+                attackTexts[i].color = highlightedColor;
+            }
+            else
+            {
+                attackTexts[i].color = Color.black;
+            }
+        }
+
+        if (selectedMove == 0)
+            attackInfoText.text = "physical attack";
+        else if (selectedMove == 1)
+            attackInfoText.text = "special attack";
+        else if (selectedMove == 2)
+            attackInfoText.text = "physical attack boosted by your xeomon, it will cause damage to your xeomon";
+        else if (selectedMove == 3)
+            attackInfoText.text = "special attack boosted by your xeomon, it will cause damage to your xeomon";
+        else
+            attackInfoText.text = "All out attack, will need to recharge";
     }
 
     public void SetMoveNames(List<Move> moves)
