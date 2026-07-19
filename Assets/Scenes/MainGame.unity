@@ -2856,6 +2856,15 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 64
   IsMoving: 0
+  xeomonParty: {fileID: 852797005}
+  starterNumber: {fileID: 11400000, guid: 5b2289829114c964dadc23bd8388dda9, type: 2}
+  starters:
+  - _base: {fileID: 11400000, guid: 3d77b4190ff11e6488102754a5774147, type: 2}
+    _level: 5
+  - _base: {fileID: 11400000, guid: 457d51f9381e2f345b2336cf33ab40c5, type: 2}
+    _level: 5
+  - _base: {fileID: 11400000, guid: 79a5b73c13802d64484b77df972582ef, type: 2}
+    _level: 5
 --- !u!212 &852797002
 SpriteRenderer:
   serializedVersion: 2
@@ -2965,13 +2974,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 55cdddbe3197cfd4f90abcab42e11a0e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::XeomonParty
-  xeomons:
-  - _base: {fileID: 11400000, guid: 3d77b4190ff11e6488102754a5774147, type: 2}
-    _level: 8
-  - _base: {fileID: 11400000, guid: 79a5b73c13802d64484b77df972582ef, type: 2}
-    _level: 8
-  - _base: {fileID: 11400000, guid: 457d51f9381e2f345b2336cf33ab40c5, type: 2}
-    _level: 8
+  xeomons: []
 --- !u!1 &856675530
 GameObject:
   m_ObjectHideFlags: 0

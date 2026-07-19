@@ -17,9 +17,27 @@ public class PlayerController : MonoBehaviour
     private Vector2 input;
 
     private Animator animator;
+    [SerializeField]private XeomonParty xeomonParty;
+    [SerializeField] FloatSO starterNumber;
+    [SerializeField] Xeomon[] starters;
     private void Awake()
     {
         animator = GetComponent<Animator>();
+        if (xeomonParty.Xeomons.Count == 0)
+        {
+            if (starterNumber.value == 1)
+            {
+                xeomonParty.AddXeomon(starters[0]);
+            }
+            else if (starterNumber.value == 2)
+            {
+                xeomonParty.AddXeomon(starters[1]);
+            }
+            else if (starterNumber.value == 3)
+            {
+                xeomonParty.AddXeomon(starters[2]);
+            }
+        }
     }
 
     public void HandleUpdate()

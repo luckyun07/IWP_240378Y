@@ -10,6 +10,7 @@ public class MapArea : MonoBehaviour
     [SerializeField] GameObject lockedArea;
 
     bool[] conditionMet = new bool[3];
+    int endgame = 0;
     public void Init()
     {
         if (conditionMet == null)
@@ -45,6 +46,8 @@ public class MapArea : MonoBehaviour
             {
                 conditionMet[2] = true;
             }
+
+
         }
 
         if (conditionMet[0] && conditionMet[1] && conditionMet[2])
