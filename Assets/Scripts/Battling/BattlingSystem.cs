@@ -34,12 +34,15 @@ public class BattlingSystem : MonoBehaviour
 
     MoveBaseInformation moveToLearn;
 
+    [SerializeField] BoolSO instantcatch;
+
     public void StartBattle(XeomonParty playerParty, Xeomon wildXeomon)
     {
         this.playerParty = playerParty;
         this.wildXeomon = wildXeomon;
 
         usedLimitRelease = false;
+        instantcatch.value = false;
         StartCoroutine(SetUpBattle());
     }
 
@@ -111,9 +114,10 @@ public class BattlingSystem : MonoBehaviour
         state = BattleState.PerformMove;
         var move = playerXeomon.Xeomon.Moves[currentMove];
         yield return RunMove(playerXeomon, enemyXeomon, move);
+        usedLimitRelease = false;
 
         // If the battle stat was not changed by RunMove, then go to next step
-        if(state == BattleState.PerformMove)
+        if (state == BattleState.PerformMove)
             StartCoroutine(EnemyMove());
     }
     IEnumerator PlayerAttack(int num)
@@ -166,7 +170,6 @@ public class BattlingSystem : MonoBehaviour
         {
             yield return HandleXeomonFainted(targetXeomon);
         }
-        usedLimitRelease = false;
     }
 
     IEnumerator RunAbility(BattlingXeomon sourceXeomon, BattlingXeomon targetXeomon, int num)
@@ -180,8 +183,8 @@ public class BattlingSystem : MonoBehaviour
         else if (num == 3)
             yield return dialogueBox.TypeDialogue("You used a " + sourceXeomon.Xeomon.BaseInformation.Element1 + " enhanced blast!");
         else if (num == 4) {
-            yield return dialogueBox.TypeDialogue("You used a " + sourceXeomon.Xeomon.BaseInformation.Element1 + " limit release!");
             usedLimitRelease = true;
+            yield return dialogueBox.TypeDialogue("You used a " + sourceXeomon.Xeomon.BaseInformation.Element1 + " limit release!");
         }
 
         var damageDetails = targetXeomon.Xeomon.TakeAbilityDamage(5f * sourceXeomon.Xeomon.Level, sourceXeomon.Xeomon, num);
@@ -230,7 +233,6 @@ public class BattlingSystem : MonoBehaviour
                 {
                     if (playerXeomon.Xeomon.Moves.Count < XeomonBaseInformation.MaxNumOfMoves)
                     {
-                        Debug.Log("Learned new move " + newMove.BaseInformation.Name);
                         playerXeomon.Xeomon.LearnMove(newMove);
                         yield return dialogueBox.TypeDialogue(playerXeomon.Xeomon.BaseInformation.Name + " learned " + newMove.BaseInformation.Name + "!");
                         dialogueBox.SetMoveNames(playerXeomon.Xeomon.Moves);
@@ -295,6 +297,15 @@ public class BattlingSystem : MonoBehaviour
 
     public void HandleUpdate()
     {
+        var keyboard = Keyboard.current;
+        if (keyboard != null)
+        {
+            if (keyboard.pKey.wasPressedThisFrame)
+            {
+                instantcatch.value = !instantcatch.value;
+            }
+        }
+
         if (state == BattleState.ActionSelection)
             HandleActionSelection();
         else if (state == BattleState.MoveSelection)
@@ -572,6 +583,10 @@ public class BattlingSystem : MonoBehaviour
             shakeCount++;
         }
 
+        if (instantcatch.value)
+            shakeCount = 4;
+
         return shakeCount;
+
     }
 }

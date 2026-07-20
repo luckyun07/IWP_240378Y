@@ -23,6 +23,8 @@ public class PlayerController : MonoBehaviour
     [SerializeField] FloatSO starterNumber;
     [SerializeField] Xeomon[] starters;
     [SerializeField] BoolSO isGameOver;
+
+    private int counter;
     private void Awake()
     {
         xeomonParty.Reset();
@@ -80,11 +82,18 @@ public class PlayerController : MonoBehaviour
 
         animator.SetBool("IsMoving", IsMoving);
 
-        if(xeomonParty.Xeomons.Count == 0)
+        counter = 0;
+        foreach (var xeomon in xeomonParty.Xeomons)
+        {
+            counter += xeomon.HP;
+        }
+
+        if(counter <= 0)
         {
             isGameOver.value = true;
             UnityEngine.SceneManagement.SceneManager.LoadScene("Endgame");
         }
+
     }
 
     IEnumerator Move(Vector3 targetPos)
@@ -110,14 +119,14 @@ public class PlayerController : MonoBehaviour
 
     private void CheckForEncounters()
     {
-        //if (Physics2D.OverlapCircle(transform.position - new Vector3(0, offsetY), 0.2f, grassLayer) != null)
-        //{
-        //    if (UnityEngine.Random.Range(1, 101) <= 10)
-        //    {
-        //        animator.SetBool("IsMoving", false);
-        //        OnEncountered();
-        //    }
-        //}
+        if (Physics2D.OverlapCircle(transform.position - new Vector3(0, offsetY), 0.2f, grassLayer) != null)
+        {
+            if (UnityEngine.Random.Range(1, 101) <= 10)
+            {
+                animator.SetBool("IsMoving", false);
+                OnEncountered();
+            }
+        }
 
         if (Physics2D.OverlapCircle(transform.position - new Vector3(0, offsetY), 0.2f, winninglayer) != null)
         {

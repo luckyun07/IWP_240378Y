@@ -36,6 +36,7 @@ public class XeomonParty : MonoBehaviour
     {
         if (xeomons.Count < 6)
         {
+            newXeomon.HP = newXeomon.MaxHP;
             xeomons.Add(newXeomon);
         }
         else { 

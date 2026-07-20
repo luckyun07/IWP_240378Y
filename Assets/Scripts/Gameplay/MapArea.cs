@@ -1,6 +1,4 @@
 using System.Collections.Generic;
-using System.Linq;
-using Unity.VisualScripting;
 using UnityEngine;
 
 public class MapArea : MonoBehaviour
@@ -9,45 +7,60 @@ public class MapArea : MonoBehaviour
     [SerializeField] XeomonParty playerXeomons;
     [SerializeField] GameObject lockedArea;
 
-    bool[] conditionMet = new bool[3];
-    int endgame = 0;
-    public void Init()
+    private bool[] conditionMet = new bool[3];
+    private int[] encounterCounts;
+
+    private void Awake()
     {
-        if (conditionMet == null)
-        {
-            for (int i = 0; i < 3; i++)
-            {
-                conditionMet[i] = false;
-            }
-        }
+        encounterCounts = new int[wildXeomons.Count];
     }
 
     public Xeomon GetRandomWildXeomon()
     {
-        var wildXeomon =  wildXeomons[Random.Range(0, wildXeomons.Count)];
-        wildXeomon.Init();
+        int totalWeight = 0;
 
-        return wildXeomon;
+        for (int i = 0; i < wildXeomons.Count; i++)
+        {
+            int weight = Mathf.Max(1, 10 - encounterCounts[i]);
+            totalWeight += weight;
+        }
+
+        int randomValue = Random.Range(0, totalWeight);
+
+        for (int i = 0; i < wildXeomons.Count; i++)
+        {
+            int weight = Mathf.Max(1, 10 - encounterCounts[i]);
+
+            if (randomValue < weight)
+            {
+                encounterCounts[i]++;
+
+                Xeomon wildXeomon = wildXeomons[i];
+                wildXeomon.Init();
+
+                return wildXeomon;
+            }
+
+            randomValue -= weight;
+        }
+
+        return null;
     }
-    
-    public void Update()
+
+    private void Update()
     {
         for (int i = 0; i < playerXeomons.Xeomons.Count; i++)
         {
-            if (playerXeomons.Xeomons[i].BaseInformation.name == "Beage")
-            {
+            string xeomonName = playerXeomons.Xeomons[i].BaseInformation.name;
+
+            if (xeomonName == "Beage")
                 conditionMet[0] = true;
-            }
-            if (playerXeomons.Xeomons[i].BaseInformation.name == "Sparkityr")
-            {
+
+            if (xeomonName == "Sparkityr")
                 conditionMet[1] = true;
-            }
-            if (playerXeomons.Xeomons[i].BaseInformation.name == "Tulcub")
-            {
+
+            if (xeomonName == "Tulcub")
                 conditionMet[2] = true;
-            }
-
-
         }
 
         if (conditionMet[0] && conditionMet[1] && conditionMet[2])
@@ -55,5 +68,4 @@ public class MapArea : MonoBehaviour
             lockedArea.SetActive(false);
         }
     }
-
 }

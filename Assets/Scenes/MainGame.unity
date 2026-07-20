@@ -2868,6 +2868,7 @@ MonoBehaviour:
     _level: 5
   - _base: {fileID: 11400000, guid: 79a5b73c13802d64484b77df972582ef, type: 2}
     _level: 5
+  isGameOver: {fileID: 11400000, guid: 1591d5b71b9993c48b2575d239d1ed1f, type: 2}
 --- !u!212 &852797002
 SpriteRenderer:
   serializedVersion: 2
@@ -15910,15 +15911,15 @@ MonoBehaviour:
   - _base: {fileID: 11400000, guid: 79a5b73c13802d64484b77df972582ef, type: 2}
     _level: 5
   - _base: {fileID: 11400000, guid: 79a5b73c13802d64484b77df972582ef, type: 2}
-    _level: 8
+    _level: 6
   - _base: {fileID: 11400000, guid: 3d77b4190ff11e6488102754a5774147, type: 2}
     _level: 5
   - _base: {fileID: 11400000, guid: 3d77b4190ff11e6488102754a5774147, type: 2}
-    _level: 8
+    _level: 6
   - _base: {fileID: 11400000, guid: 457d51f9381e2f345b2336cf33ab40c5, type: 2}
     _level: 5
   - _base: {fileID: 11400000, guid: 457d51f9381e2f345b2336cf33ab40c5, type: 2}
-    _level: 8
+    _level: 6
   playerXeomons: {fileID: 852797005}
   lockedArea: {fileID: 702528187}
 --- !u!1 &1403735633
@@ -16320,6 +16321,7 @@ MonoBehaviour:
   - {fileID: 7890650338855100463, guid: acd24c91b8440f24e9940206f9b890d5, type: 3}
   weapon: {fileID: 2035092312}
   moveSelectionUI: {fileID: 703832854}
+  instantcatch: {fileID: 11400000, guid: 2e4d90e7944e03144bf83ee72b21840d, type: 2}
 --- !u!224 &1573213808 stripped
 RectTransform:
   m_CorrespondingSourceObject: {fileID: 881684982017551730, guid: b7efb4d59dd558f4088a3c0f52e30df5, type: 3}
