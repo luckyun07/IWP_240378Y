@@ -22,6 +22,11 @@ public class XeomonParty : MonoBehaviour
         }
     }
 
+    public void Reset()
+    {
+        xeomons.Clear();
+    }
+
     public Xeomon GetHealthyXeomon()
     {
         return xeomons.Where(x => x.HP > 0).FirstOrDefault();

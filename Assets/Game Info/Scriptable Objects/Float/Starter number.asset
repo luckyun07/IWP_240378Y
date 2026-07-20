@@ -12,4 +12,4 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7816b9e3ae1d5ef499eec5b8515e9a02, type: 3}
   m_Name: Starter number
   m_EditorClassIdentifier: Assembly-CSharp::FloatSO
-  value: 2
+  value: 3

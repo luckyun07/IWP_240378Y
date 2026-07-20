@@ -1,5 +1,6 @@
     using System;
 using System.Collections;
+using Unity.VectorGraphics;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -10,6 +11,7 @@ public class PlayerController : MonoBehaviour
     public float moveSpeed;
     public LayerMask solidObjectLayer;
     public LayerMask grassLayer;
+    public LayerMask winninglayer;
 
     public event Action OnEncountered;
 
@@ -20,8 +22,10 @@ public class PlayerController : MonoBehaviour
     [SerializeField]private XeomonParty xeomonParty;
     [SerializeField] FloatSO starterNumber;
     [SerializeField] Xeomon[] starters;
+    [SerializeField] BoolSO isGameOver;
     private void Awake()
     {
+        xeomonParty.Reset();
         animator = GetComponent<Animator>();
         if (xeomonParty.Xeomons.Count == 0)
         {
@@ -75,6 +79,12 @@ public class PlayerController : MonoBehaviour
         }
 
         animator.SetBool("IsMoving", IsMoving);
+
+        if(xeomonParty.Xeomons.Count == 0)
+        {
+            isGameOver.value = true;
+            UnityEngine.SceneManagement.SceneManager.LoadScene("Endgame");
+        }
     }
 
     IEnumerator Move(Vector3 targetPos)
@@ -100,13 +110,19 @@ public class PlayerController : MonoBehaviour
 
     private void CheckForEncounters()
     {
-        if (Physics2D.OverlapCircle(transform.position - new Vector3(0, offsetY), 0.2f, grassLayer) != null)
+        //if (Physics2D.OverlapCircle(transform.position - new Vector3(0, offsetY), 0.2f, grassLayer) != null)
+        //{
+        //    if (UnityEngine.Random.Range(1, 101) <= 10)
+        //    {
+        //        animator.SetBool("IsMoving", false);
+        //        OnEncountered();
+        //    }
+        //}
+
+        if (Physics2D.OverlapCircle(transform.position - new Vector3(0, offsetY), 0.2f, winninglayer) != null)
         {
-            if (UnityEngine.Random.Range(1, 101) <= 10)
-            {
-                animator.SetBool("IsMoving", false);
-                OnEncountered();
-            }
+            isGameOver.value = false;
+            UnityEngine.SceneManagement.SceneManager.LoadScene("Endgame");
         }
     }
 }
